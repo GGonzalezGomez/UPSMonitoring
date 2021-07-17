@@ -2,6 +2,7 @@ from flask import Flask, request, render_template, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import subprocess, re
+from flask_restful import Resource, Api, reqparse
 
 MOCKOUT="Init SSL without certificate database\n\
 battery.charge: 100\n\
@@ -35,6 +36,12 @@ ups.vendorid: 0665\n"
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///historicdata.db'
 db = SQLAlchemy(app)
+api = Api(app)
+
+fields = ["Battery Charge","Battery Voltage","Battery Voltage High","Battery Voltage Low", \
+          "Battery Voltage Nominal","Polling interval","Input Current Nominal", \
+          "Input Frequency","Input Frequency Nominal","Input Voltage","Input Voltage Nominal", \
+          "Output Voltage","UPS Status"]
 
 class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -64,7 +71,7 @@ def main():
     #print(output.returncode)
     #print(output.stdout)
     #print(MOCKOUT)
-    return render_template('index.html')
+    return render_template('index.html',keyvalues=fields)
 
 if __name__ == "__main__":
     app.run(port=8080,host="localhost")

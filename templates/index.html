@@ -5,5 +5,18 @@
 {% endblock %}
 
 {% block body %}
-<h1>Template</h1>
+<div class="data">
+    <h1>UPS monitoring data</h1>
+    <table>
+        <tr>
+            <th>Metric</th>
+            <th>Value</th>
+        </tr>
+        {% for i in range(0,len(keyvalues)-1) %}
+        <tr>
+            <td>keyvalues[i]</td><td>-</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
 {% endblock %}
