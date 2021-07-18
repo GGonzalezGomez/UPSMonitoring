@@ -64,14 +64,28 @@ class Todo(db.Model):
         return 'Value added for ' % self.timestamp
     
 
+
+class Record(Resource):
+    def get(self, identifier):
+        pass
+    def post(self, identifier):
+        pass
+    def delete(self, identifier):
+        pass
+
+class RecordList(Resource):
+    def get(self):
+        return "Hello world"
+    def post(self):
+        pass
+
 @app.route('/', methods=['GET'])
 def main():
     output=subprocess.run(["ls", "-l"], capture_output=True, universal_newlines=True)
     print(re.findall("battery.charge.*", MOCKOUT))
-    #print(output.returncode)
-    #print(output.stdout)
-    #print(MOCKOUT)
     return render_template('index.html',keyvalues=fields)
 
 if __name__ == "__main__":
+    api.add_resource(RecordList, '/records')
+    api.add_resource(Record, '/record/<string:identifier>')
     app.run(port=8080,host="localhost")

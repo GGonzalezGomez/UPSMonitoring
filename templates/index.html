@@ -12,9 +12,9 @@
             <th>Metric</th>
             <th>Value</th>
         </tr>
-        {% for i in range(0,len(keyvalues)-1) %}
+        {% for i in range(0, keyvalues|length -1) %}
         <tr>
-            <td>keyvalues[i]</td><td>-</td>
+            <td>{{keyvalues[i]}}</td><td>-</td>
         </tr>
         {% endfor %}
     </table>
