@@ -41,9 +41,9 @@ api = Api(app)
 fields = ["Battery Charge","Battery Voltage","Battery Voltage High","Battery Voltage Low", \
           "Battery Voltage Nominal","Polling interval","Input Current Nominal", \
           "Input Frequency","Input Frequency Nominal","Input Voltage","Input Voltage Nominal", \
-          "Output Voltage","UPS Status"]
+          "Output Voltage","UPS Status","Input Voltage Fault","UPS load"]
 
-class Todo(db.Model):
+class Record(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     battCharge = db.Column(db.Float)
@@ -56,8 +56,10 @@ class Todo(db.Model):
     inputFreq = db.Column(db.Float)
     inputFreqNom = db.Column(db.Float)
     inputVolt = db.Column(db.Float)
+    inputVoltFault = db.Column(db.Float)
     inputVoltNom = db.Column(db.Float)
     outputVolt = db.Column(db.Float)
+    upsLoad = db.Column(db.Float)
     upsStatus = db.Column(db.String(25))
 
     def __repr__(self):
@@ -77,11 +79,47 @@ class RecordList(Resource):
     def get(self):
         return "Hello world"
     def post(self):
-        pass
+        parser = reqparse.RequestParser()
+        parser.add_argument('battery.charge', type=float)
+        parser.add_argument('battery.voltage', type=float)
+        parser.add_argument('battery.voltage.high', type=float)
+        parser.add_argument('battery.voltage.low', type=float)
+        parser.add_argument('battery.voltage.nominal', type=float)
+        parser.add_argument('driver.parameter.pollinterval', type=float)
+        parser.add_argument('input.current.nominal', type=float)
+        parser.add_argument('input.frequency', type=float)
+        parser.add_argument('input.frequency.nominal', type=float)
+        parser.add_argument('input.voltage', type=float)
+        parser.add_argument('input.voltage.fault', type=float)
+        parser.add_argument('input.voltage.nominal', type=float)
+        parser.add_argument('output.voltage', type=float)
+        parser.add_argument('ups.load', type=float)
+        parser.add_argument('ups.status', type=str)
+        args = parser.parse_args()
+
+        new_record = Record(battCharge=args['battery.charge'],
+            battVolt=args['battery.voltage'],
+            battVoltHigh=args['battery.voltage.high'],
+            battVoltLow=args['battery.voltage.low'],
+            battVoltNom=args['battery.voltage.nominal'],
+            pollInterval=args['driver.parameter.pollinterval'],
+            inputCurrNom=args['input.current.nominal'],
+            inputFreq=args['input.frequency'],
+            inputFreqNom=args['input.frequency.nominal'],
+            inputVolt=args['input.voltage'],
+            inputVoltFault=args['input.voltage.fault'],
+            inputVoltNom=args['input.voltage.nominal'],
+            outputVolt=args['output.voltage'],
+            upsLoad=args['ups.load'],
+            upsStatus=args['ups.status'])
+
+        #try:
+            #db.session.add()
+        return {'status': 'success'}, 201
 
 @app.route('/', methods=['GET'])
 def main():
-    output=subprocess.run(["ls", "-l"], capture_output=True, universal_newlines=True)
+    #output=subprocess.run(["ls", "-l"], capture_output=True, universal_newlines=True)
     print(re.findall("battery.charge.*", MOCKOUT))
     return render_template('index.html',keyvalues=fields)
 
@@ -89,3 +127,14 @@ if __name__ == "__main__":
     api.add_resource(RecordList, '/records')
     api.add_resource(Record, '/record/<string:identifier>')
     app.run(port=8080,host="localhost")
+
+
+
+# curl -X POST \
+#   http://localhost:8080/records \
+#   -H 'Content-Type: application/json' \
+#   -H 'Postman-Token: 361994f4-8430-444f-9d60-ed5376d4b7cd' \
+#   -H 'cache-control: no-cache' \
+#   -d '{ "this": 2,
+#   "that": 4
+# }'
