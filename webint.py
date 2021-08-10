@@ -41,9 +41,9 @@ api = Api(app)
 fields = ["Battery Charge","Battery Voltage","Battery Voltage High","Battery Voltage Low", \
           "Battery Voltage Nominal","Polling interval","Input Current Nominal", \
           "Input Frequency","Input Frequency Nominal","Input Voltage","Input Voltage Nominal", \
-          "Output Voltage","UPS Status"]
+          "Output Voltage","UPS Status","Input Voltage Fault","UPS load"]
 
-class Todo(db.Model):
+class Record(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     battCharge = db.Column(db.Float)
@@ -56,8 +56,10 @@ class Todo(db.Model):
     inputFreq = db.Column(db.Float)
     inputFreqNom = db.Column(db.Float)
     inputVolt = db.Column(db.Float)
+    inputVoltFault = db.Column(db.Float)
     inputVoltNom = db.Column(db.Float)
     outputVolt = db.Column(db.Float)
+    upsLoad = db.Column(db.Float)
     upsStatus = db.Column(db.String(25))
 
     def __repr__(self):
@@ -96,7 +98,7 @@ class RecordList(Resource):
 
 @app.route('/', methods=['GET'])
 def main():
-    output=subprocess.run(["ls", "-l"], capture_output=True, universal_newlines=True)
+    #output=subprocess.run(["ls", "-l"], capture_output=True, universal_newlines=True)
     print(re.findall("battery.charge.*", MOCKOUT))
     return render_template('index.html',keyvalues=fields)
 
@@ -104,3 +106,21 @@ if __name__ == "__main__":
     api.add_resource(RecordList, '/records')
     api.add_resource(Record, '/record/<string:identifier>')
     app.run(port=8080,host="localhost")
+
+
+
+# curl --location --request POST 'http://localhost:8080/records' \
+# --form 'jander="clander"' \
+# --form 'Battery Charge="100"' \
+# --form 'Battery Voltage="13.70"' \
+# --form 'Battery Voltage High="13.00"' \
+# --form 'Battery Voltage Low="10.40"' \
+# --form 'Battery Voltage Nominal="12.00"' \
+# --form 'Polling interval="2"' \
+# --form 'Input Current Nominal="3.0"' \
+# --form 'Input Frequency="50.1"' \
+# --form 'Input Frequency Nominal="50"' \
+# --form 'Input Voltage="243.3"' \
+# --form 'Input Voltage Nominal="230"' \
+# --form 'Output Voltage="243.3"' \
+# --form 'UPS Status="OL"'
