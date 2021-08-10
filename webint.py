@@ -61,7 +61,8 @@ class Todo(db.Model):
     upsStatus = db.Column(db.String(25))
 
     def __repr__(self):
-        return 'Value added for ' % self.timestamp
+        return '{{id: {:d}, timestamp: {:%Y-%m-%d %H:%M:%S}, battCharge: {:.2f}, battVolt: {:.2f}, battVoltHigh: {:.2f}, battVoltLow: {:.2f}, battVoltNom: {:.2f}, pollInterval: {:.1f}, inputCurrNom: {:.2f}, inputFreq: {:.2f}, inputFreqNom: {:.2f}, inputVolt: {:.2f}, inputVoltNom: {:.2f}, outputVolt: {:.2f}, upsStatus: {:s} }}'.format(self.id, 
+                self.timestamp, self.battCharge, self.battVolt, self.battVoltHigh, self.battVoltLow, self.battVoltNom, self.pollInterval, self.inputCurrNom, self.inputFreq, self.inputFreqNom, self.inputVolt, self.inputVoltNom, self.outputVolt, self.upsStatus)
     
 
 
@@ -75,8 +76,22 @@ class Record(Resource):
 
 class RecordList(Resource):
     def get(self):
+        tasks = Todo.query.order_by(Todo.timestamp).all()
+        print(tasks)
         return "Hello world"
     def post(self):
+        print(request.form['Input Voltage'])
+        new_task = Todo(battCharge=request.form['Battery Charge'], battVolt=request.form['Battery Voltage'], battVoltHigh=request.form['Battery Voltage High'], battVoltLow=request.form['Battery Voltage Low'], 
+                        battVoltNom=request.form['Battery Voltage Nominal'], pollInterval=request.form['Polling interval'], inputCurrNom=request.form['Input Current Nominal'], inputFreq=request.form['Input Frequency'], 
+                        inputFreqNom=request.form['Input Frequency Nominal'], inputVolt=request.form['Input Voltage'], inputVoltNom=request.form['Input Voltage Nominal'], outputVolt=request.form['Output Voltage'], 
+                        upsStatus=request.form['UPS Status'])
+
+        try:
+            db.session.add(new_task)
+            db.session.commit()
+            return 'Successful'
+        except:
+            return 'There was an issue adding your task'
         pass
 
 @app.route('/', methods=['GET'])
